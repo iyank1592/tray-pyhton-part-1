@@ -1,4 +1,4 @@
-const tombolSapa = document.getElementByld('penekEn');
-penekEn.addEventListernel('click", function() {
+const penekEn = document.getElementByld('tombolSapa');
+tombolSapa.addEventListernel('click", function() {
    ( 'halo terimakasih sudah berkunjung' );
 });
