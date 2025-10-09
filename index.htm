@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kalkulator Sederhana (Mirip Python)</title>
+  <style>
+    :root{--bg:#f7f7fb;--card:#fff;--muted:#6b7280;--accent:#2563eb}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 100%);display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 24px rgba(20,20,50,0.08);width:420px;max-width:100%;padding:20px}
+    h1{font-size:18px;margin:0 0 8px}
+    p.lead{margin:0 0 16px;color:var(--muted);font-size:13px}
+    .row{display:flex;gap:10px}
+    input[type="text"],select{flex:1;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:15px}
+    button{padding:10px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+    button.secondary{background:#e6eefc;color:var(--accent);font-weight:600}
+    .result{margin-top:14px;padding:12px;border-radius:8px;background:#0f172a10;font-weight:700}
+    .history{margin-top:12px;max-height:140px;overflow:auto;padding:8px;border-radius:8px;background:#fbfbfe;border:1px solid #eef2ff}
+    .history div{padding:6px 8px;border-radius:6px;font-size:13px;color:#111827}
+    .muted{color:var(--muted);font-size:13px}
+    footer{margin-top:12px;text-align:right;font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 60px;gap:10px}
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Kalkulator Sederhana — Mirip Skrip Python</h1>
+    <p class="lead">Masukkan dua angka, pilih operasi (+ - * /). Hasil akan muncul dan tersimpan di history.</p>
+
+    <label class="muted">Angka pertama</label>
+    <input id="a" type="text" placeholder="contoh: 12.5" autocomplete="off">
+
+    <label class="muted">Angka kedua</label>
+    <input id="b" type="text" placeholder="contoh: 3.4" autocomplete="off">
+
+    <div style="height:10px"></div>
+    <div class="row">
+      <select id="op" aria-label="Operasi">
+        <option value="+">Tambah (+)</option>
+        <option value="-">Kurang (-)</option>
+        <option value="*">Kali (*)</option>
+        <option value="/">Bagi (/)</option>
+      </select>
+      <button id="calc">Hitung</button>
+    </div>
+
+    <div class="result" id="result">Hasil: —</div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="secondary" id="clear">Bersihkan</button>
+      <button id="copy">Salin Hasil</button>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="muted">History</div>
+      <div class="history" id="history"></div>
+    </div>
+
+    <footer>
+      Dibuat untuk digunakan langsung (copy-paste). — Ketik angka atau gunakan tombol.
+    </footer>
+  </main>
+
+  <script>
+    // Kalkulator sederhana — logika mirip kode Python yang kamu punya
+    const elA = document.getElementById('a');
+    const elB = document.getElementById('b');
+    const elOp = document.getElementById('op');
+    const btnCalc = document.getElementById('calc');
+    const elResult = document.getElementById('result');
+    const elHistory = document.getElementById('history');
+    const btnClear = document.getElementById('clear');
+    const btnCopy = document.getElementById('copy');
+
+    let history = [];
+
+    function pushHistory(a, b, op, res) {
+      const entry = `${a} ${op} ${b} = ${res}`;
+      history.unshift(entry);
+      if (history.length > 50) history.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      elHistory.innerHTML = '';
+      if (history.length === 0) {
+        elHistory.innerHTML = '<div class="muted">Belum ada riwayat.</div>';
+        return;
+      }
+      history.forEach(h => {
+        const d = document.createElement('div');
+        d.textContent = h;
+        d.addEventListener('click', () => {
+          // klik history masukkan ke input
+          const m = h.match(/^(.+)\s([+\-*/])\s(.+)\s=\s(.+)$/);
+          if (m) {
+            elA.value = m[1];
+            elOp.value = m[2];
+            elB.value = m[3];
+            elResult.textContent = 'Hasil: ' + m[4];
+          }
+        });
+        elHistory.appendChild(d);
+      });
+    }
+
+    function showResult(text) {
+      elResult.textContent = 'Hasil: ' + text;
+    }
+
+    function calc() {
+      const aRaw = elA.value.trim();
+      const bRaw = elB.value.trim();
+      const op = elOp.value;
+
+      if (aRaw.toLowerCase() === 'keluar' || bRaw.toLowerCase() === 'keluar') {
+        showResult('Perintah keluar diterima — tutup tab jika ingin keluar.');
+        return;
+      }
+
+      const a = parseFloat(aRaw);
+      const b = parseFloat(bRaw);
+      if (Number.isNaN(a) || Number.isNaN(b)) {
+        showResult('Masukkan hanya angka!');
+        return;
+      }
+
+      let res;
+      if (op === '+') res = a + b;
+      else if (op === '-') res = a - b;
+      else if (op === '*') res = a * b;
+      else if (op === '/') {
+        if (b === 0) { showResult('Tidak bisa dibagi nol!'); return; }
+        res = a / b;
+      } else {
+        showResult('Operasi tidak dikenal');
+        return;
+      }
+
+      // tampilkan dengan maksimal 12 digit signifikan
+      const nice = (Math.abs(res) < 1e12) ? Number(res.toPrecision(12)).toString() : res.toExponential(6);
+      showResult(nice);
+      pushHistory(aRaw, bRaw, op, nice);
+    }
+
+    btnCalc.addEventListener('click', calc);
+    elA.addEventListener('keydown', (e) => { if (e.key === 'Enter') calc(); });
+    elB.addEventListener('keydown', (e) => { if (e.key === 'Enter') calc(); });
+
+    btnClear.addEventListener('click', () => {
+      elA.value = '';
+      elB.value = '';
+      elResult.textContent = 'Hasil: —';
+      history = [];
+      renderHistory();
+    });
+
+    btnCopy.addEventListener('click', async () => {
+      const text = elResult.textContent.replace(/^Hasil:\s*/, '');
+      try {
+        await navigator.clipboard.writeText(text);
+        btnCopy.textContent = 'Disalin!';
+        setTimeout(()=> btnCopy.textContent = 'Salin Hasil', 1200);
+      } catch (e) {
+        alert('Gagal menyalin. Anda dapat menyalin manual.');
+      }
+    });
+
+    // initial
+    renderHistory();
+  </script>
+</body>
+</html>
